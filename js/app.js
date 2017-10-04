@@ -46,15 +46,12 @@
   function setCounter(target) {
     document.getElementById(`${target}-pic`).addEventListener('click', function() {
       let content = document.getElementById(`${target}-counter`).innerHTML;
-      console.log(content);
       document.getElementById(`${target}-counter`).innerHTML = (parseInt(content)+1).toString();
     });
   }
 
   function switchVisibility(target) {
-    console.log(target);
     const cat = document.getElementById(`${target}`)
-    console.log(cat);
     document.getElementById(`${target}-nav`).addEventListener('click', function() {
       if (cat.style.display === 'none') {
         cat.style.display = 'block';
