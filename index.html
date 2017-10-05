@@ -10,14 +10,27 @@
     <header>
         <h1>Cat Clicker</h1>
     </header>
-    <ul id ='cat-nav'></ul>
-    <div id ='cat'>
+    <ul id='cat-nav'></ul>
+    <div id='cat'>
         <div id='name'></div>
         <figure>
-          <img id='pic'></img>
-          <figcaption id='caption'></figcaption>
+            <img id='pic'></img>
+            <figcaption id='caption'></figcaption>
         </figure>
         <div id='counter'></div>
+    </div>
+    <div id='admin'>
+      <button id='admin-btn' type='button'>Admin</button>
+      <form id='admin-form' style='display:none;'>
+        Name: <input type='text' name='name' value=''>
+        <br>
+        ImgURL: <input type='text' name='imgUrl' value=''>
+        <br>
+        # clicks: <input type='text' name='#clicks' value=''>
+        <br>
+        <button id='cancel' type='button'>Cancel</button>
+        <button id='save' type='button'>Save</button>
+      </form>
     </div>
 
     <script src='js/app.js'></script>

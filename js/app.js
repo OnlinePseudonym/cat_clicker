@@ -54,6 +54,7 @@ let octopus = {
 
     catView.init();
     catNavView.init();
+    adminView.init();
   },
   addImages: function(data) {
     const cats = model.cats;
@@ -84,6 +85,11 @@ let octopus = {
   incCounter: function() {
     model.currentCat.clickCounter += 1;
     catView.render();
+  },
+  submitForm: function() {
+    model.currentCat.name = document.getElementsByName('name')[0].value;
+    model.currentCat.imageSource = document.getElementsByName('imgUrl')[0].value;
+    model.currentCat.clickCounter = parseInt(document.getElementsByName('#clicks')[0].value);
   }
 }
 
@@ -94,6 +100,8 @@ let catNavView = {
   },
 
   render: function() {
+    document.getElementById('cat-nav').innerHTML = '';
+
     const cats = octopus.getCats();
     const frag = document.createDocumentFragment();
 
@@ -108,11 +116,42 @@ let catNavView = {
         return function() {
           octopus.setCurrentCat(catCopy)
           catView.render();
-          console.log('hello');
         };
       })(cat));
     }
     document.getElementById('cat-nav').appendChild(frag);
+  }
+}
+
+let adminView = {
+  init: function() {
+    const admin = document.getElementById('admin-btn');
+    const cancel = document.getElementById('cancel');
+    const save = document.getElementById('save');
+    const form = document.getElementById('admin-form');
+
+    admin.addEventListener('click', function() {
+      if (octopus.getCurrentCat()) {
+        form.setAttribute('style', 'display:block;');
+        adminView.render();
+      }
+    }),
+    cancel.addEventListener('click', function() {
+      form.setAttribute('style', 'display:none;');
+    }),
+    save.addEventListener('click', function() {
+      octopus.submitForm();
+      catView.render();
+      catNavView.render();
+    })
+  },
+
+  render: function() {
+    const cat = octopus.getCurrentCat();
+
+    document.getElementsByName('name')[0].value = cat.name;
+    document.getElementsByName('imgUrl')[0].value = cat.imageSource;
+    document.getElementsByName('#clicks')[0].value = cat.clickCounter;
   }
 }
 
@@ -124,10 +163,12 @@ let catView = {
   },
   render: function() {
     const cat = octopus.getCurrentCat();
+
     document.getElementById('name').innerText = cat.name;
-    document.getElementById('pic').src = cat.imageSource
+    document.getElementById('pic').src = cat.imageSource;
     document.getElementById('caption').innerText = cat.caption;
     document.getElementById('counter').innerText = cat.clickCounter;
+
   }
 
 }
