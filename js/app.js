@@ -1,63 +1,135 @@
-(function() {
-  const cats = ['Mittens', 'Ser Pounce', 'Simba', 'Thomas O\'Malley', 'Leo', 'Tabby'];
-  const elem = document.getElementById('cats');
-  const counter = document.getElementById('click-counter');
-  let clickCounter = 0;
-
-  fetch('https://api.unsplash.com/search/photos?page=1&query=kitty', {
-    headers: {
-      Authorization: 'Client-ID c2a8dc48e99f388612aaceab726995bfb362915795f0a63527a37c9dfef7c1dd'
+let model = {
+  currentCat: null,
+  cats: [
+    {
+      name: 'Mittens',
+      clickCounter: 0,
+      imageSource: '',
+      caption: '',
+      imageNumber: null
+    },{
+      name: 'Ser Pounce',
+      clickCounter: 0,
+      imageSource: '',
+      caption: '',
+      imageNumber: null
+    },{
+      name: 'Simba',
+      clickCounter: 0,
+      imageSource: '',
+      caption: '',
+      imageNumber: null
+    },{
+      name: 'Thomas O\'Malley',
+      clickCounter: 0,
+      imageSource: '',
+      caption: '',
+      imageNumber: null
+    },{
+      name: 'Leo',
+      clickCounter: 0,
+      imageSource: '',
+      caption: '',
+      imageNumber: null
+    },{
+      name: 'Tabby',
+      clickCounter: 0,
+      imageSource: '',
+      caption: '',
+      imageNumber: null
     }
-  }).then(response => response.json())
-  .then(addImages)
-  .then(addNav)
-  .catch(e => requestError(e, 'image'));
+  ]
+};
 
-  function addImages(data) {
-    for( let i = 0; i < cats.length; i++) {
-      let htmlContent = '';
-      const image = data.results[Math.floor(Math.random() * (data.results.length))];
-      const cat = cats[i].toLowerCase().replace(' ', '-');
-      if (image) {
-        htmlContent = `<figure id="${cat}" class="kittens" style="display:none;"><h2>${cats[i]}</h2>
-        <img id="${cat}-pic" src="${image.urls.small}" alt="Cat">
-        <figcaption>by ${image.user.name}</figcaption>
-        <div id="${cat}-counter">0</div>
-        </figure>`;
-      } else {
-        htmlContent = 'Unfortunately, we couldn\'t find a cat.'
+let octopus = {
+  init: function() {
+    fetch('https://api.unsplash.com/search/photos?page=1&query=kitty', {
+      headers: {
+        Authorization: 'Client-ID c2a8dc48e99f388612aaceab726995bfb362915795f0a63527a37c9dfef7c1dd'
       }
-      elem.insertAdjacentHTML('afterbegin', htmlContent);
-      setCounter(cat);
-    }
-  }
-
-  function addNav() {
-    elem.insertAdjacentHTML('beforebegin', '<div id="nav"></div>')
-    for( let i = 0; i < cats.length; i++) {
-      let htmlContent = '';
-      const cat = cats[i].toLowerCase().replace(' ', '-');
-      htmlContent = `<div id="${cat}-nav">${cats[i]}</div>`
-      document.getElementById('nav').insertAdjacentHTML('afterbegin', htmlContent)
-      switchVisibility(cat);
-    }
-  }
-
-  function setCounter(target) {
-    document.getElementById(`${target}-pic`).addEventListener('click', function() {
-      let content = document.getElementById(`${target}-counter`).innerHTML;
-      document.getElementById(`${target}-counter`).innerHTML = (parseInt(content)+1).toString();
-    });
-  }
-
-  function switchVisibility(target) {
-    const cat = document.getElementById(`${target}`)
-    document.getElementById(`${target}-nav`).addEventListener('click', function() {
-      if (cat.style.display === 'none') {
-        cat.style.display = 'block';
-      } else {
-        cat.style.display = 'none';
-      }
+    }).then(response => response.json())
+    .then(function(data) {
+      octopus.addImages(data);
     })
+
+    catView.init();
+    catNavView.init();
+  },
+  addImages: function(data) {
+    const cats = model.cats;
+    for( let i = 0; i < cats.length; i++) {
+      const cat = cats[i];
+      let ranNum = Math.floor(Math.random() * (data.results.length));
+      while ( cats.map(function(obj) {
+        return obj.imageNumber;
+      }).indexOf(ranNum) > -1) {
+        ranNum = Math.floor(Math.random() * (data.results.length));
+      }
+      cat.imageNumber = ranNum;
+      const image = data.results[ranNum];
+
+      cat.imageSource = image.urls.small;
+      cat.caption = `by ${image.user.name}`;
+    }
+  },
+  setCurrentCat: function(cat) {
+    model.currentCat = cat;
+  },
+  getCurrentCat: function() {
+    return model.currentCat;
+  },
+  getCats: function() {
+    return model.cats;
+  },
+  incCounter: function() {
+    model.currentCat.clickCounter += 1;
+    catView.render();
   }
-})();
+}
+
+let catNavView = {
+
+  init: function() {
+    this.render();
+  },
+
+  render: function() {
+    const cats = octopus.getCats();
+    const frag = document.createDocumentFragment();
+
+    for( let i = 0; i < cats.length; i ++) {
+      const cat = cats[i];
+
+      el = document.createElement('li');
+      el.innerText = cat.name;
+      frag.appendChild(el);
+
+      el.addEventListener('click', (function(catCopy) {
+        return function() {
+          octopus.setCurrentCat(catCopy)
+          catView.render();
+          console.log('hello');
+        };
+      })(cat));
+    }
+    document.getElementById('cat-nav').appendChild(frag);
+  }
+}
+
+let catView = {
+  init: function() {
+    document.getElementById('pic').addEventListener('click', function() {
+      octopus.incCounter();
+    })
+  },
+  render: function() {
+    const cat = octopus.getCurrentCat();
+    document.getElementById('name').innerText = cat.name;
+    document.getElementById('pic').src = cat.imageSource
+    document.getElementById('caption').innerText = cat.caption;
+    document.getElementById('counter').innerText = cat.clickCounter;
+  }
+
+}
+
+octopus.init();
